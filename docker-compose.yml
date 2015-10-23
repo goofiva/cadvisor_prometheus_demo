@@ -1,0 +1,47 @@
+cadvisor:
+  hostname: cadvisor.invision.local
+  image: google/cadvisor:latest
+  volumes:
+   - /:/rootfs:ro
+   - /var/run:/var/run:rw
+   - /sys:/sys:ro
+   - /var/lib/docker/:/var/lib/docker:ro
+  ports:
+   - "8080:8080"
+
+nodeexporter:
+  hostname: nodeexporter.invision.local
+  image: prom/node-exporter
+  ports:
+   - "9100:9100"
+  net: "host"
+
+registry:
+  hostname: registry.invision.local
+  image: registry:2
+  name: registry
+  ports:
+   - "5000:5000"
+
+alertmanager:
+  hostname: prom_alert_manager.invision.local
+  image: prom/alertmanager
+  command: -config.file=/alertmanager.conf
+  volumes:
+    - ./alertmanager/alertmanager.conf:/alertmanager.conf
+  ports:
+    - "9093:9093"
+
+prometheus:
+  hostname: prometheus.invision.local
+  image: prom/prometheus
+  command: -alertmanager.url=http://prom_alert_manager:9093 -config.file=/etc/prometheus/prometheus.yml
+  volumes:
+   - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+   - ./prometheus/alert.rules:/etc/prometheus/alert.rules
+  ports:
+   - "9090:9090"
+  links:
+    - registry:registry.invision.local
+    - cadvisor:cadvisor.invision.local
+    - alertmanager:prom_alert_manager.invision.local
