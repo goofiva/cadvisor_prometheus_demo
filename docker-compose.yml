@@ -1,5 +1,13 @@
+
+registry:
+  hostname: registry.local
+  image: registry:2
+  name: registry
+  ports:
+   - "5000:5000"
+
 cadvisor:
-  hostname: cadvisor.invision.local
+  hostname: cadvisor.local
   image: google/cadvisor:latest
   volumes:
    - /:/rootfs:ro
@@ -9,22 +17,8 @@ cadvisor:
   ports:
    - "8080:8080"
 
-nodeexporter:
-  hostname: nodeexporter.invision.local
-  image: prom/node-exporter
-  ports:
-   - "9100:9100"
-  net: "host"
-
-registry:
-  hostname: registry.invision.local
-  image: registry:2
-  name: registry
-  ports:
-   - "5000:5000"
-
 alertmanager:
-  hostname: prom_alert_manager.invision.local
+  hostname: prom_alert_manager.local
   image: prom/alertmanager
   command: -config.file=/alertmanager.conf
   volumes:
@@ -33,7 +27,7 @@ alertmanager:
     - "9093:9093"
 
 prometheus:
-  hostname: prometheus.invision.local
+  hostname: prometheus.local
   image: prom/prometheus
   command: -alertmanager.url=http://prom_alert_manager:9093 -config.file=/etc/prometheus/prometheus.yml
   volumes:
@@ -42,6 +36,6 @@ prometheus:
   ports:
    - "9090:9090"
   links:
-    - registry:registry.invision.local
-    - cadvisor:cadvisor.invision.local
-    - alertmanager:prom_alert_manager.invision.local
+    - registry:registry.local
+    - cadvisor:cadvisor.local
+    - alertmanager:prom_alert_manager.local
